@@ -9,17 +9,35 @@ import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
 public class AfTools {
     public static AmazonS3Client client;
-    public static String bucketName = "somename";
 
     public static void main(String [ ] args) {
-        client = new AmazonS3Client(new ProfileCredentialsProvider());
+        Options opts = new Options();
+        opts.addOption("b", true, "The bucket name to work on");
 
-        List<Bucket> buckets = client.listBuckets();
-        for (Bucket b : buckets) {
-            System.out.println("Bucket: " + b.getName());
+        CommandLineParser parser = new BasicParser();
+        CommandLine cmd;
+        try {
+            cmd = parser.parse(opts, args);
         }
+        catch (ParseException e) {
+            System.out.println("Unable to parse cmd line args.");
+            return;
+        }
+
+        String bucketName = cmd.getOptionValue("b");
+        if (bucketName == null) {
+            System.err.println("Please supply a bucket name with the -b option");
+            return;
+        }
+        client = new AmazonS3Client(new ProfileCredentialsProvider());
 
         CORSRule rule = new CORSRule()
             .withId("rule1")
