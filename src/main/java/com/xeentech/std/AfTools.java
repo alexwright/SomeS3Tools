@@ -2,6 +2,7 @@ package com.xeentech.sdt;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
@@ -22,6 +23,8 @@ public class AfTools {
     public static void main(String [ ] args) {
         Options opts = new Options();
         opts.addOption("b", true, "The bucket name to work on");
+        opts.addOption("o", true, "Comma separated list of Origins (use with -b)");
+        opts.addOption("m", true, "Comma separated list of Methods (user with -b)");
         opts.addOption("c", true, "Create a new bucket");
         opts.addOption("p", true, "The AWS profile to use when loading credentials");
         opts.addOption("l", false, "List buckets on the account");
@@ -71,7 +74,7 @@ public class AfTools {
 
         // Bucket Config
         if (cmd.hasOption("b")) {
-            setBucketConfig(cmd.getOptionValue("b"));
+            setBucketConfig(cmd.getOptionValue("b"), cmd);
         }
 
         // List Regions
@@ -90,18 +93,7 @@ public class AfTools {
         }
     }
 
-    private static void setBucketConfig(String bucketName) {
-        CORSRule rule = new CORSRule()
-            .withId("rule1")
-            .withAllowedMethods(Arrays.asList(new CORSRule.AllowedMethods[] {
-                CORSRule.AllowedMethods.PUT,
-                CORSRule.AllowedMethods.POST,
-            }))
-            .withAllowedOrigins(Arrays.asList(new String[] {
-                "http://web01.salesfollowup123.com/",
-                "http://afnew.mimas.xeentech.com/",
-            }));
-
+    private static void setBucketConfig(String bucketName, CommandLine cmd) {
         BucketCrossOriginConfiguration config;
         config = client.getBucketCrossOriginConfiguration(bucketName);
 
@@ -111,9 +103,37 @@ public class AfTools {
         List<CORSRule> rules = config.getRules();
         if (rules == null) {
             System.out.println("No rules at all");
+            rules = new ArrayList<CORSRule>();
         }
         else {
             System.out.format("\nConfiguration has %s rules:\n", config.getRules().size());
+        }
+
+        if (!cmd.hasOption("o") || !cmd.hasOption("m")) {
+            System.out.println("No Origins (-o) or Methods (-m) given");
+            CORSRule.AllowedMethods.values();
+        }
+        else {
+            List<CORSRule.AllowedMethods> methods = new ArrayList<CORSRule.AllowedMethods>();
+            for (String sMethod : (cmd.getOptionValue("m").split(","))) {
+                CORSRule.AllowedMethods method = CORSRule.AllowedMethods.fromValue(sMethod);
+                methods.add(method);
+            }
+            List<String> origins = new ArrayList<String>();
+            for (String origin : cmd.getOptionValue("o").split(",")) {
+                origins.add(origin);
+            }
+            System.out.println("Methods: " + methods.toString());
+            System.out.println("Origins: " + origins.toString());
+
+            CORSRule rule = new CORSRule()
+                .withId("rule1")
+                .withAllowedMethods(methods)
+                .withAllowedOrigins(origins);
+
+            config = new BucketCrossOriginConfiguration();
+            config.setRules(Arrays.asList(new CORSRule[] { rule }));
+            client.setBucketCrossOriginConfiguration(bucketName, config);
         }
     }
 }
