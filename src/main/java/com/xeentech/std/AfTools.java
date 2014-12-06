@@ -22,8 +22,10 @@ public class AfTools {
     public static void main(String [ ] args) {
         Options opts = new Options();
         opts.addOption("b", true, "The bucket name to work on");
+        opts.addOption("c", true, "Create a new bucket");
         opts.addOption("p", true, "The AWS profile to use when loading credentials");
         opts.addOption("l", false, "List buckets on the account");
+        opts.addOption("r", true, "S3 Region to use");
         opts.addOption("listregions", false, "Get a list of regions");
 
         CommandLineParser parser = new BasicParser();
@@ -44,6 +46,23 @@ public class AfTools {
             creds = new ProfileCredentialsProvider();
         }
         client = new AmazonS3Client(creds);
+
+        // Create a bucket
+        if (cmd.hasOption("c")) {
+            String bucketName = cmd.getOptionValue("c");
+            if (cmd.hasOption("r")) {
+                try {
+                    Region region = Region.fromValue(cmd.getOptionValue("r"));
+                    client.createBucket(bucketName, region);
+                }
+                catch (java.lang.IllegalArgumentException e) {
+                    System.err.format("Unable to find region '%s'", cmd.getOptionValue("r"));
+                }
+            }
+            else {
+                client.createBucket(bucketName);
+            }
+        }
 
         // List Buckets
         if (cmd.hasOption("l")) {
