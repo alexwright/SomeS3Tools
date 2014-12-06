@@ -21,6 +21,7 @@ public class AfTools {
     public static void main(String [ ] args) {
         Options opts = new Options();
         opts.addOption("b", true, "The bucket name to work on");
+        opts.addOption("p", true, "The AWS profile to use when loading credentials");
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd;
@@ -37,7 +38,15 @@ public class AfTools {
             System.err.println("Please supply a bucket name with the -b option");
             return;
         }
-        client = new AmazonS3Client(new ProfileCredentialsProvider());
+
+        ProfileCredentialsProvider creds;
+        if (cmd.hasOption("p")) {
+            creds = new ProfileCredentialsProvider(cmd.getOptionValue("p"));
+        }
+        else {
+            creds = new ProfileCredentialsProvider();
+        }
+        client = new AmazonS3Client(creds);
 
         CORSRule rule = new CORSRule()
             .withId("rule1")
