@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.amazonaws:aws-java-sdk:1.8.7'
+}
+
+apply plugin: 'application'
+mainClassName = "com.xeentech.sdt.AfTools"
+
