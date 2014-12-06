@@ -22,6 +22,7 @@ public class AfTools {
         Options opts = new Options();
         opts.addOption("b", true, "The bucket name to work on");
         opts.addOption("p", true, "The AWS profile to use when loading credentials");
+        opts.addOption("l", false, "List buckets on the account");
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd;
@@ -30,12 +31,6 @@ public class AfTools {
         }
         catch (ParseException e) {
             System.out.println("Unable to parse cmd line args.");
-            return;
-        }
-
-        String bucketName = cmd.getOptionValue("b");
-        if (bucketName == null) {
-            System.err.println("Please supply a bucket name with the -b option");
             return;
         }
 
@@ -48,6 +43,26 @@ public class AfTools {
         }
         client = new AmazonS3Client(creds);
 
+        // List Buckets
+        if (cmd.hasOption("l")) {
+            listBuckets();
+        }
+
+        // Bucket Config
+        if (cmd.hasOption("b")) {
+            setBucketConfig(cmd.getOptionValue("b"));
+        }
+    }
+
+    private static void listBuckets() {
+        List<Bucket> buckets = client.listBuckets();
+        System.out.format("%d buckets found:\n", buckets.size());
+        for (Bucket b : buckets) {
+            System.out.println("Bucket: " + b.getName());
+        }
+    }
+
+    private static void setBucketConfig(String bucketName) {
         CORSRule rule = new CORSRule()
             .withId("rule1")
             .withAllowedMethods(Arrays.asList(new CORSRule.AllowedMethods[] {
