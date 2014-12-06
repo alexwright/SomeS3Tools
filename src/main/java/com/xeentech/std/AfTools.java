@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
+import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
 import org.apache.commons.cli.CommandLineParser;
@@ -23,6 +24,7 @@ public class AfTools {
         opts.addOption("b", true, "The bucket name to work on");
         opts.addOption("p", true, "The AWS profile to use when loading credentials");
         opts.addOption("l", false, "List buckets on the account");
+        opts.addOption("listregions", false, "Get a list of regions");
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd;
@@ -51,6 +53,13 @@ public class AfTools {
         // Bucket Config
         if (cmd.hasOption("b")) {
             setBucketConfig(cmd.getOptionValue("b"));
+        }
+
+        // List Regions
+        if (cmd.hasOption("listregions")) {
+            for (Region r : Region.values()) {
+                System.out.println(r.toString());
+            }
         }
     }
 
