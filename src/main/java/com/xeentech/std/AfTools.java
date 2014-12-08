@@ -24,7 +24,8 @@ public class AfTools {
         Options opts = new Options();
         opts.addOption("b", true, "The bucket name to work on");
         opts.addOption("o", true, "Comma separated list of Origins (use with -b)");
-        opts.addOption("m", true, "Comma separated list of Methods (user with -b)");
+        opts.addOption("h", true, "Comma separated list of Headers (use with -b)");
+        opts.addOption("m", true, "Comma separated list of Methods (use with -b)");
         opts.addOption("c", true, "Create a new bucket");
         opts.addOption("p", true, "The AWS profile to use when loading credentials");
         opts.addOption("l", false, "List buckets on the account");
@@ -123,11 +124,17 @@ public class AfTools {
             for (String origin : cmd.getOptionValue("o").split(",")) {
                 origins.add(origin);
             }
+            List<String> headers = new ArrayList<String>();
+            for (String header : cmd.getOptionValue("h").split(",")) {
+                headers.add(header);
+            }
+            System.out.println("Headers: " + headers.toString());
             System.out.println("Methods: " + methods.toString());
             System.out.println("Origins: " + origins.toString());
 
             CORSRule rule = new CORSRule()
                 .withId("rule1")
+                .withAllowedHeaders(headers)
                 .withAllowedMethods(methods)
                 .withAllowedOrigins(origins);
 
