@@ -10,7 +10,7 @@ dependencies {
 }
 
 apply plugin: 'application'
-mainClassName = "com.xeentech.sdt.AfTools"
+mainClassName = "com.xeentech.tools.S3Tools"
 
 run {
     systemProperties System.getProperties()

@@ -1,4 +1,4 @@
-package com.xeentech.sdt;
+package com.xeentech.tools;
 
 import java.util.List;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
-public class AfTools {
+public class S3Tools {
     public static AmazonS3Client client;
 
     public static void main(String [ ] args) {
