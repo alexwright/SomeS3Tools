@@ -1,4 +1,5 @@
 apply plugin: 'java'
+version = '0.2'
 
 repositories {
     mavenCentral()
@@ -17,4 +18,23 @@ run {
     if ( project.hasProperty("appArgs") ) {
         args appArgs.split()
     }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'xeen S3 Tools',
+                   'Implementation-Version': version,
+                   'Main-Class': 'com.xeentech.tools.S3Tools'
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'xeen S3 Tools',
+                   'Implementation-Version': version,
+                   'Main-Class': 'com.xeentech.tools.S3Tools'
+    }
+    baseName = project.name + '-fat'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
