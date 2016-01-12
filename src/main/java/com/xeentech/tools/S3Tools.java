@@ -108,6 +108,12 @@ public class S3Tools {
         }
         else {
             System.out.format("\nConfiguration has %s rules:\n", config.getRules().size());
+            for (CORSRule rule : rules) {
+                System.out.format("  %s\n", rule.getId());
+                System.out.format("  * Allowed Headers: %s\n", rule.getAllowedHeaders().toString());
+                System.out.format("  * Allowed Methods: %s\n", rule.getAllowedMethods().toString());
+                System.out.format("  * Allowed Origins: %s\n", rule.getAllowedOrigins().toString());
+            }
         }
 
         if (!cmd.hasOption("o") || !cmd.hasOption("m")) {
