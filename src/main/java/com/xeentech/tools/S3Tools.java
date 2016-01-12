@@ -22,6 +22,7 @@ public class S3Tools {
 
     public static void main(String [ ] args) {
         Options opts = new Options();
+        opts.addOption("a", true, "The rule name to use");
         opts.addOption("b", true, "The bucket name to work on");
         opts.addOption("o", true, "Comma separated list of Origins (use with -b)");
         opts.addOption("h", true, "Comma separated list of Headers (use with -b)");
@@ -138,14 +139,26 @@ public class S3Tools {
             System.out.println("Methods: " + methods.toString());
             System.out.println("Origins: " + origins.toString());
 
+            // Default to "rule1" as before
+            String ruleName = "rule1";
+            if (cmd.hasOption("a")) {
+                ruleName = cmd.getOptionValue("a");
+            }
+
             CORSRule rule = new CORSRule()
-                .withId("rule1")
+                .withId(ruleName)
                 .withAllowedHeaders(headers)
                 .withAllowedMethods(methods)
                 .withAllowedOrigins(origins);
 
+            ArrayList<CORSRule> newRules = new ArrayList<CORSRule>();
+            if (cmd.hasOption("a")) {
+                newRules.addAll(rules);
+            }
+            newRules.add(rule);
+
             config = new BucketCrossOriginConfiguration();
-            config.setRules(Arrays.asList(new CORSRule[] { rule }));
+            config.setRules(newRules);
             client.setBucketCrossOriginConfiguration(bucketName, config);
         }
     }
